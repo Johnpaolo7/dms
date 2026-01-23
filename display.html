@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Display</title>
+
+<style>
+@import url('https://fonts.cdnfonts.com/css/digital-numbers');
+body { 
+    background:black; 
+    color:white; 
+    font-family:Arial,sans-serif; 
+    margin:2vh;
+    padding:2vh 2vw;
+}
+.lights { 
+    display:flex; 
+    gap:1vw; 
+    justify-content:center; 
+    margin:1vh 0;
+}
+.light { 
+    width:25vw; 
+    height:25vw; 
+    background:#222; 
+    border-radius:50%; 
+    box-shadow: inset 0 0 2vw #000; 
+}
+.light.red { background:red; } 
+.light.green { background:limegreen; }
+
+.board { 
+    display:grid; 
+    grid-template-columns:2fr 1fr; 
+    border:none; 
+    height:40vh;
+    align-items:center;
+    border-top: 0.3vw solid #555;
+    margin-top: 4vh;
+}
+
+.left { 
+    border-right: 0.3vw solid #555;
+    padding:2vw; 
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    width:100%;
+}
+
+.right { 
+    display:flex; 
+    flex-direction:column; 
+    align-items:center; 
+    justify-content:center; 
+}
+
+#timer { 
+    font-family:'Digital Numbers', monospace;
+    font-size:5vw;
+    margin-top: none;
+}
+
+#laps { 
+    font-family:'Digital Numbers', monospace;
+    font-size:15vw; 
+    font-weight:bold; 
+    justify-content: center;
+}
+
+.laps-label { 
+    font-size:4vw; 
+    align-items: center;
+    margin-left: 8vh;
+}
+
+.logos { 
+    display:flex; 
+    gap:5vw; 
+    margin-top:2vh; 
+}
+.logos img { width:13vw; }
+
+#one-lap-overlay,
+#finish-overlay {
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.95);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    z-index:9999;
+    text-align:center;
+}
+
+#one-lap-overlay {
+    color:red;
+    font-size:8vw;
+}
+
+#finish-overlay {
+    color:yellow;
+    font-size:12vw;
+}
+
+#finish-overlay .flags {
+    font-size:10vw;
+    animation: wave 1s infinite alternate;
+}
+@keyframes wave {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(20deg); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="lights">
+  <div class="light" id="light1"></div>
+  <div class="light" id="light2"></div>
+  <div class="light" id="light3"></div>
+  <div class="light" id="light4"></div>
+  <div class="light" id="light5"></div>
+</div>
+
+<div class="board">
+  <div class="left">
+    <div id="timer">00:00:00</div>
+    <div class="logos">
+      <img src="logo1.jpg" alt="DMS">
+      <img src="logo2.jpg" alt="DMS">
+    </div>
+  </div>
+
+  <div class="right">
+    <div id="laps">10</div>
+    <div class="laps-label">LAPS</div>
+  </div>
+</div>
+
+<div id="one-lap-overlay">1 LAP TO GO</div>
+
+<div id="finish-overlay">
+  <div class="flags">🏁 🏁</div>
+  <div>FINISH</div>
+</div>
+
+<script>
+const timerDisplay = document.getElementById('timer');
+const lapsDisplay = document.getElementById('laps');
+const overlay = document.getElementById('one-lap-overlay');
+const finishOverlay = document.getElementById('finish-overlay');
+
+const lights = [
+  light1, light2, light3, light4, light5
+];
+
+function renderRaceState(state){
+  timerDisplay.textContent = state.timer || "00:00:00";
+  lapsDisplay.textContent = state.laps;
+
+  state.lights.forEach((color,i)=>{
+    lights[i].className = "light";
+    if(color) lights[i].classList.add(color);
+  });
+
+  overlay.style.display = state.oneLapOverlay ? 'flex' : 'none';
+  finishOverlay.style.display = state.laps === 0 ? 'flex' : 'none';
+}
+
+window.addEventListener('storage', e => {
+  if(e.key === 'raceState' && e.newValue){
+    renderRaceState(JSON.parse(e.newValue));
+  }
+});
+
+renderRaceState({
+  timer:"00:00:00",
+  laps:10,
+  lights:['off','off','off','off','off'],
+  oneLapOverlay:false
+});
+</script>
+
+</body>
+</html>
